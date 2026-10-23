@@ -1,0 +1,34 @@
+name: Build iPhone release
+on:
+  push:
+    tags: ['v*-build*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build unsigned iPhone archive
+        run: >-
+          xcodebuild archive -project GameDay.xcodeproj -scheme GameDay
+          -configuration Release -destination 'generic/platform=iOS'
+          -archivePath build/GameDay.xcarchive CODE_SIGNING_ALLOWED=NO
+      - name: Package IPA and app source
+        run: python3 scripts/package_release.py build/GameDay.xcarchive --repository "$GITHUB_REPOSITORY"
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/GameDay.xcarchive/Products/Applications/GameDay.app/Info.plist)
+          BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' build/GameDay.xcarchive/Products/Applications/GameDay.app/Info.plist)
+          TAG="v${VERSION}-build${BUILD}"
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" != "$TAG" ]]; then
+            echo "Tag must match the version and build in the Xcode project."
+            exit 1
+          fi
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "GameDay ${VERSION} (build ${BUILD})" --generate-notes
+          fi
+          gh release upload "$TAG" dist/GameDay.ipa dist/source.json dist/icon.png --clobber
