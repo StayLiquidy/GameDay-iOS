@@ -1,7 +1,7 @@
 name: Build iPhone release
 on:
   push:
-    tags: ['v*-build*']
+    tags: ['v*']
   workflow_dispatch:
 permissions:
   contents: write
@@ -23,9 +23,9 @@ jobs:
         run: |
           VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/GameDay.xcarchive/Products/Applications/GameDay.app/Info.plist)
           BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' build/GameDay.xcarchive/Products/Applications/GameDay.app/Info.plist)
-          TAG="v${VERSION}-build${BUILD}"
+          TAG="v${VERSION}"
           if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" != "$TAG" ]]; then
-            echo "Tag must match the version and build in the Xcode project."
+            echo "Tag must match the marketing version in the Xcode project."
             exit 1
           fi
           if ! gh release view "$TAG" >/dev/null 2>&1; then

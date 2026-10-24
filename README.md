@@ -14,7 +14,7 @@ This repository contains only the native iPhone project. No provider credentials
 
 ## Publishing subsequent updates
 
-Update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` for both configurations in `GameDay.xcodeproj/project.pbxproj`, commit, and push a matching tag such as `v0.12-build19`. The release workflow builds an unsigned IPA and publishes `GameDay.ipa`, `icon.png`, and `source.json`. The source URL above stays the same; refresh it in FlareStore to see the new version. Installation still requires your signing certificate and the normal iOS confirmation.
+Update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` for both configurations in `GameDay.xcodeproj/project.pbxproj`, commit, and push a matching version-only tag such as `v0.13`. Increment the marketing version for every public update; keep the build number separate in the app and feed metadata so GitHub-based app importers compare versions correctly. The release workflow builds an unsigned IPA and publishes `GameDay.ipa`, `icon.png`, and `source.json`. The source URL above stays the same; refresh it in FlareStore to see the new version. Installation still requires your signing certificate and the normal iOS confirmation.
 
 For a local release, archive with `CODE_SIGNING_ALLOWED=NO`, then run `python3 scripts/package_release.py path/to/GameDay.xcarchive`. Upload the three files in `dist/` to the matching GitHub release. The workflow requires a macOS runner with Xcode 26 and package download access.
 

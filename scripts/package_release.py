@@ -20,7 +20,7 @@ with (app / "Info.plist").open("rb") as stream:
     info = plistlib.load(stream)
 version = info["CFBundleShortVersionString"]
 build = info["CFBundleVersion"]
-tag = f"v{version}-build{build}"
+tag = f"v{version}"
 args.output.mkdir(parents=True, exist_ok=True)
 ipa = args.output / "GameDay.ipa"
 with tempfile.TemporaryDirectory(prefix="gameday-release-") as staging:
@@ -55,8 +55,7 @@ source = {"name": "GameDay", "identifier": "net.inspectah.gameday.source",
               "name": "GameDay", "bundleIdentifier": info["CFBundleIdentifier"],
               "developerName": args.repository.split("/")[0],
               "localizedDescription": description, "iconURL": f"{release_url}/icon.png",
-              "versions": [entry], "version": version, "versionDate": date,
+              "versions": [entry], "version": version, "buildVersion": build, "versionDate": date,
               "downloadURL": entry["downloadURL"], "size": entry["size"]}], "news": []}
 (args.output / "source.json").write_text(json.dumps(source, indent=2) + "\n")
 print(f"Packaged {tag}: {ipa} ({ipa.stat().st_size} bytes)")
-
